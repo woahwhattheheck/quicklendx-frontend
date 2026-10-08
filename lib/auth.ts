@@ -8,3 +8,9 @@ export interface SessionUser {
 export interface SessionResponse {
   user: SessionUser | null;
 }
+
+/** Returned by `POST /api/session/refresh`: the current session plus the
+ * time it was last checked, so clients can detect a stale local copy. */
+export interface RefreshSessionResponse extends SessionResponse {
+  refreshedAt: string;
+}

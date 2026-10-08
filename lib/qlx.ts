@@ -58,6 +58,12 @@ export async function getInvoicesForUser(userId: string): Promise<Invoice[]> {
   return [...MOCK_INVOICES];
 }
 
+/** Status lookup through the existing qlx boundary. This is still demo
+ * data; replace with an authenticated contract read before production use. */
+export async function getInvoiceStatus(invoiceId: string): Promise<InvoiceStatus | null> {
+  return MOCK_INVOICES.find((invoice) => invoice.id === invoiceId)?.status ?? null;
+}
+
 export interface InvoicePage {
   invoices: Invoice[];
   /** Opaque cursor for the next page, or `null` once there are no more

@@ -1,0 +1,55 @@
+openapi: 3.1.0
+info:
+  title: QuickLendX Invoice Status
+  version: 0.1.0
+  description: Read-only, early-stage demo route. Production integration requires invoice authorization.
+paths:
+  /api/invoice/{invoiceId}/status:
+    get:
+      operationId: getInvoiceStatus
+      summary: Read the current invoice status
+      parameters:
+        - in: path
+          name: invoiceId
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 128
+      responses:
+        "200":
+          description: Status read (not cached)
+          headers:
+            Cache-Control:
+              schema: { type: string, const: no-store }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceStatusResponse"
+        "400":
+          description: Invalid invoice id
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+        "404":
+          description: Invoice not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+components:
+  schemas:
+    InvoiceStatusResponse:
+      type: object
+      additionalProperties: false
+      required: [invoiceId, status]
+      properties:
+        invoiceId: { type: string }
+        status:
+          type: string
+          enum: [open, funded, repaid, defaulted]
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error: { type: string }

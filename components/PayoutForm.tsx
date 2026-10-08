@@ -14,10 +14,16 @@ const INVALID_ADDRESS_MESSAGE =
  * Stellar public key before calling {@link PayoutFormProps.onSubmit} --
  * a wrong or non-Stellar address here means funds sent on-chain are
  * unrecoverable, so this fails closed rather than trusting the caller to
- * validate. */
+ * validate.
+ *
+ * After a valid submit the button latches disabled so a double-click or
+ * impatient second press cannot fire `onSubmit` twice for the same
+ * address; editing the address (or the visibility-clear below) releases
+ * the latch, since that is a genuinely new submission, not a duplicate. */
 export function PayoutForm({ onSubmit }: PayoutFormProps) {
   const [address, setAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   // Clear the in-progress payout address when the tab is backgrounded
   // (screen-shared, switched away from, etc). A partially- or fully-typed
@@ -30,6 +36,7 @@ export function PayoutForm({ onSubmit }: PayoutFormProps) {
       if (document.visibilityState === "hidden") {
         setAddress("");
         setError(null);
+        setSubmitted(false);
       }
     }
 
@@ -46,6 +53,7 @@ export function PayoutForm({ onSubmit }: PayoutFormProps) {
     }
 
     setError(null);
+    setSubmitted(true);
     onSubmit(address);
   }
 
@@ -57,7 +65,10 @@ export function PayoutForm({ onSubmit }: PayoutFormProps) {
         name="payout-address"
         type="text"
         value={address}
-        onChange={(event) => setAddress(event.target.value.trim())}
+        onChange={(event) => {
+          setAddress(event.target.value.trim());
+          setSubmitted(false);
+        }}
         aria-invalid={error !== null}
         aria-describedby={error ? "payout-address-error" : undefined}
       />
@@ -66,7 +77,9 @@ export function PayoutForm({ onSubmit }: PayoutFormProps) {
           {error}
         </p>
       ) : null}
-      <button type="submit">Send payout</button>
+      <button type="submit" disabled={submitted}>
+        Send payout
+      </button>
     </form>
   );
 }

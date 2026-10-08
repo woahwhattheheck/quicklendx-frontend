@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { isValidStellarPublicKey } from "@/lib/stellar";
+import { isValidStellarAddress } from "@/lib/stellarAddress";
 
 export interface PayoutFormProps {
   onSubmit: (address: string) => void;
@@ -10,11 +10,12 @@ export interface PayoutFormProps {
 const INVALID_ADDRESS_MESSAGE =
   "Enter a valid Stellar public key (56 characters, starting with G).";
 
-/** Payout destination form. Rejects anything that isn't shaped like a
+/** Payout destination form. Rejects anything that isn't a checksum-valid
  * Stellar public key before calling {@link PayoutFormProps.onSubmit} --
- * a wrong or non-Stellar address here means funds sent on-chain are
- * unrecoverable, so this fails closed rather than trusting the caller to
- * validate. */
+ * including G-prefixed strings whose CRC16 doesn't verify, which a
+ * format-only check would let through. A wrong or non-Stellar address
+ * here means funds sent on-chain are unrecoverable, so this fails closed
+ * rather than trusting the caller to validate. */
 export function PayoutForm({ onSubmit }: PayoutFormProps) {
   const [address, setAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +41,7 @@ export function PayoutForm({ onSubmit }: PayoutFormProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!isValidStellarPublicKey(address)) {
+    if (!isValidStellarAddress(address)) {
       setError(INVALID_ADDRESS_MESSAGE);
       return;
     }

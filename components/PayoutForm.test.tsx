@@ -3,7 +3,13 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { PayoutForm } from "./PayoutForm";
 
-const VALID_KEY = `G${"A".repeat(55)}`;
+// Checksum-valid StrKey address (same fixture as lib/stellarAddress.test.ts).
+// The form now verifies the CRC16 checksum, so a made-up `G + "A"*55` string
+// would fail validation and break these tests.
+const VALID_KEY = "GABQUEIYD4TC2NB3IJEVAV26MVWHG6UBRCHZNHNEVOZLTQGHZ3K5YMUR";
+// Same as VALID_KEY with the final character swapped -- correct prefix and
+// length, but the checksum no longer matches.
+const TAMPERED_KEY = "GABQUEIYD4TC2NB3IJEVAV26MVWHG6UBRCHZNHNEVOZLTQGHZ3K5YMUA";
 
 describe("PayoutForm", () => {
   it("calls onSubmit with a valid Stellar address", async () => {
@@ -27,6 +33,20 @@ describe("PayoutForm", () => {
       screen.getByLabelText("Payout address"),
       "0x71C7656EC7ab88b098defB751B7401B5f6d8976"
     );
+    await user.click(screen.getByRole("button", { name: "Send payout" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Enter a valid Stellar public key (56 characters, starting with G)."
+    );
+  });
+
+  it("rejects a well-formed address with a bad checksum", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<PayoutForm onSubmit={onSubmit} />);
+
+    await user.type(screen.getByLabelText("Payout address"), TAMPERED_KEY);
     await user.click(screen.getByRole("button", { name: "Send payout" }));
 
     expect(onSubmit).not.toHaveBeenCalled();

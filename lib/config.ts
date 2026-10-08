@@ -18,6 +18,7 @@ export const FEATURE_FLAG_ENV_KEYS: Record<keyof FeatureFlags, string> = {
 export type Config = {
   sentryDsn: string;
   stellarNetwork: StellarNetwork;
+  sorobanRpcUrl: string;
   featureFlags: FeatureFlags;
 };
 
@@ -31,6 +32,34 @@ function readStellarNetwork(): StellarNetwork {
   return raw === "mainnet" || raw === "testnet" ? raw : DEFAULT_STELLAR_NETWORK;
 }
 
+/** Public Soroban RPC endpoint per network, used when `SOROBAN_RPC_URL`
+ * is unset or invalid. The default tracks `stellarNetwork` so a mainnet
+ * deployment can never silently read testnet state. */
+const DEFAULT_SOROBAN_RPC_URLS: Record<StellarNetwork, string> = {
+  testnet: "https://soroban-testnet.stellar.org",
+  mainnet: "https://mainnet.sorobanrpc.com",
+};
+
+/** Env override wins only when it parses as an http(s) URL -- unset,
+ * empty, malformed, or non-http(s) values fall back to the configured
+ * network's public endpoint rather than failing closed at read time or
+ * handing a bad URL to the RPC client. The env value is passed through
+ * verbatim once validated. */
+function readSorobanRpcUrl(network: StellarNetwork): string {
+  const raw = process.env.SOROBAN_RPC_URL;
+  if (raw) {
+    try {
+      const parsed = new URL(raw);
+      if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+        return raw;
+      }
+    } catch {
+      // fall through to the network default
+    }
+  }
+  return DEFAULT_SOROBAN_RPC_URLS[network];
+}
+
 /** A flag is enabled only for the exact string `"true"` -- unset, empty,
  * or any other value defaults closed, so a new flag never needs every
  * environment to explicitly opt out. */
@@ -40,9 +69,12 @@ function readFeatureFlags(): FeatureFlags {
   };
 }
 
+const stellarNetwork = readStellarNetwork();
+
 const config: Config = {
   sentryDsn: process.env.SENTRY_DSN ?? "",
-  stellarNetwork: readStellarNetwork(),
+  stellarNetwork,
+  sorobanRpcUrl: readSorobanRpcUrl(stellarNetwork),
   featureFlags: readFeatureFlags(),
 };
 

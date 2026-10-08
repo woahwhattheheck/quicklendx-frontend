@@ -1,0 +1,22 @@
+name: diag-qlx48
+on:
+  push:
+    branches:
+      - fix/issue-48-soroban-rpc-url
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: focused unit tests
+        run: npx vitest run lib/config.test.ts
+      - name: typecheck
+        run: npm run typecheck
+      - name: eslint touched files
+        run: npx eslint lib/config.ts lib/config.test.ts lib/qlx.ts components/FeatureFlagsDebugOverlay.tsx

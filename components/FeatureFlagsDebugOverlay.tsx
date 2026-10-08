@@ -43,6 +43,9 @@ export function FeatureFlagsDebugOverlay() {
         <strong>stellarNetwork</strong>: {config.stellarNetwork}
       </div>
       <div>
+        <strong>sorobanRpcUrl</strong>: {config.sorobanRpcUrl}
+      </div>
+      <div>
         <strong>sentryEnabled</strong>: {String(Boolean(config.sentryDsn))}
       </div>
     </div>

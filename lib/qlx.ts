@@ -5,6 +5,15 @@
  * once the escrow contract's read-only methods are available.
  */
 
+import config from "./config";
+
+/** Soroban RPC endpoint resolved through `lib/config.ts` (`SOROBAN_RPC_URL`
+ * env var, per-network default). The real RPC client lands here once the
+ * escrow contract's read-only methods are deployed -- see the module
+ * docblock above; until then this constant keeps the wiring seam visible
+ * and env-driven instead of a hardcoded literal. */
+export const SOROBAN_RPC_URL = config.sorobanRpcUrl;
+
 export type InvoiceStatus = "open" | "funded" | "repaid" | "defaulted";
 
 export interface Invoice {

@@ -37,6 +37,7 @@ business logic.
 | ------------- | -------- | ----------- | --------------------------------------------------------------------------- |
 | `SENTRY_DSN`  | No       | `""`        | Sentry DSN for error tracking. When empty, Sentry is disabled.              |
 | `STELLAR_NETWORK` | No   | `"testnet"` | Which Stellar network the client targets: `testnet` or `mainnet`. Unset or unrecognized values fall back to `testnet`. |
+| `SOROBAN_RPC_URL` | No | per-network default | Soroban RPC endpoint for the server-side on-chain read layer (`lib/qlx.ts`). Defaults to the public endpoint for `STELLAR_NETWORK`; malformed or non-http(s) values fall back. |
 
 ## Mock API server for local dev
 

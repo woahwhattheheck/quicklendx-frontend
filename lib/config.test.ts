@@ -40,4 +40,43 @@ describe("config", () => {
     const { default: config } = await import("./config");
     expect(config.stellarNetwork).toBe("testnet");
   });
+
+  it("returns the SOROBAN_RPC_URL value when the env var is a valid http(s) URL", async () => {
+    vi.stubEnv("SOROBAN_RPC_URL", "https://rpc.example.com/soroban");
+    vi.resetModules();
+    const { default: config } = await import("./config");
+    expect(config.sorobanRpcUrl).toBe("https://rpc.example.com/soroban");
+  });
+
+  it("defaults sorobanRpcUrl to the testnet endpoint when SOROBAN_RPC_URL is unset", async () => {
+    vi.stubEnv("SOROBAN_RPC_URL", undefined);
+    vi.stubEnv("STELLAR_NETWORK", "testnet");
+    vi.resetModules();
+    const { default: config } = await import("./config");
+    expect(config.sorobanRpcUrl).toBe("https://soroban-testnet.stellar.org");
+  });
+
+  it("defaults sorobanRpcUrl to the mainnet endpoint when STELLAR_NETWORK is mainnet", async () => {
+    vi.stubEnv("SOROBAN_RPC_URL", undefined);
+    vi.stubEnv("STELLAR_NETWORK", "mainnet");
+    vi.resetModules();
+    const { default: config } = await import("./config");
+    expect(config.sorobanRpcUrl).toBe("https://mainnet.sorobanrpc.com");
+  });
+
+  it("falls back to the network default when SOROBAN_RPC_URL is not a valid URL", async () => {
+    vi.stubEnv("SOROBAN_RPC_URL", "not a url");
+    vi.stubEnv("STELLAR_NETWORK", "testnet");
+    vi.resetModules();
+    const { default: config } = await import("./config");
+    expect(config.sorobanRpcUrl).toBe("https://soroban-testnet.stellar.org");
+  });
+
+  it("rejects non-http(s) SOROBAN_RPC_URL values", async () => {
+    vi.stubEnv("SOROBAN_RPC_URL", "ftp://rpc.example.com");
+    vi.stubEnv("STELLAR_NETWORK", "testnet");
+    vi.resetModules();
+    const { default: config } = await import("./config");
+    expect(config.sorobanRpcUrl).toBe("https://soroban-testnet.stellar.org");
+  });
 });

@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import config from "@/lib/config";
 import { log } from "@/lib/logger";
 
 export interface Toast {
@@ -17,9 +18,6 @@ export interface Toast {
 }
 
 export type DismissReason = "manual" | "auto";
-
-/** Toasts auto-dismiss after this long unless manually dismissed first. */
-const AUTO_DISMISS_MS = 5000;
 
 interface ToastContextValue {
   toasts: Toast[];
@@ -68,7 +66,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       setToasts((current) => [...current, { id, message }]);
       timers.current.set(
         id,
-        setTimeout(() => dismissToast(id, "auto"), AUTO_DISMISS_MS)
+        setTimeout(() => dismissToast(id, "auto"), config.toastAutoDismissMs)
       );
     },
     [dismissToast]

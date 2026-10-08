@@ -19,9 +19,11 @@ export type Config = {
   sentryDsn: string;
   stellarNetwork: StellarNetwork;
   featureFlags: FeatureFlags;
+  toastAutoDismissMs: number;
 };
 
 const DEFAULT_STELLAR_NETWORK: StellarNetwork = "testnet";
+export const DEFAULT_TOAST_AUTO_DISMISS_MS = 5000;
 
 /** Sane default first, environment override second -- an unset or
  * unrecognized `STELLAR_NETWORK` value falls back to testnet rather than
@@ -40,10 +42,24 @@ function readFeatureFlags(): FeatureFlags {
   };
 }
 
+/** Milliseconds before a toast auto-dismisses. Sane default first,
+ * environment override second: unset, non-numeric, or non-positive
+ * `NEXT_PUBLIC_TOAST_AUTO_DISMISS_MS` falls back to the default rather
+ * than disabling auto-dismiss or throwing. */
+function readToastAutoDismissMs(): number {
+  const raw = process.env.NEXT_PUBLIC_TOAST_AUTO_DISMISS_MS;
+  if (!raw) return DEFAULT_TOAST_AUTO_DISMISS_MS;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0
+    ? parsed
+    : DEFAULT_TOAST_AUTO_DISMISS_MS;
+}
+
 const config: Config = {
   sentryDsn: process.env.SENTRY_DSN ?? "",
   stellarNetwork: readStellarNetwork(),
   featureFlags: readFeatureFlags(),
+  toastAutoDismissMs: readToastAutoDismissMs(),
 };
 
 export default config;

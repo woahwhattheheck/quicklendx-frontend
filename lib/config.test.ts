@@ -40,4 +40,27 @@ describe("config", () => {
     const { default: config } = await import("./config");
     expect(config.stellarNetwork).toBe("testnet");
   });
+
+  it("defaults toastAutoDismissMs to 5000 when the env var is unset", async () => {
+    vi.stubEnv("NEXT_PUBLIC_TOAST_AUTO_DISMISS_MS", undefined);
+    vi.resetModules();
+    const { default: config } = await import("./config");
+    expect(config.toastAutoDismissMs).toBe(5000);
+  });
+
+  it("reads toastAutoDismissMs from NEXT_PUBLIC_TOAST_AUTO_DISMISS_MS", async () => {
+    vi.stubEnv("NEXT_PUBLIC_TOAST_AUTO_DISMISS_MS", "8000");
+    vi.resetModules();
+    const { default: config } = await import("./config");
+    expect(config.toastAutoDismissMs).toBe(8000);
+  });
+
+  it("falls back to the default when the env var is not a positive number", async () => {
+    for (const bad of ["abc", "0", "-250", ""]) {
+      vi.stubEnv("NEXT_PUBLIC_TOAST_AUTO_DISMISS_MS", bad);
+      vi.resetModules();
+      const { default: config } = await import("./config");
+      expect(config.toastAutoDismissMs).toBe(5000);
+    }
+  });
 });

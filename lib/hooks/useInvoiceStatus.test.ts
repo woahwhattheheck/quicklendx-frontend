@@ -9,7 +9,7 @@ afterEach(() => {
 
 describe("useInvoiceStatus", () => {
   it("loads a typed status and stops polling when repaid", async () => {
-    const fetchSpy = vi.fn(async () => new Response(
+    const fetchSpy = vi.fn(async (_url: string, _init?: RequestInit) => new Response(
       JSON.stringify({ invoiceId: "inv_1001", status: "repaid" }),
       { status: 200 }
     ));

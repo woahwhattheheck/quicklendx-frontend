@@ -7,10 +7,9 @@ that work landing).
 This app authenticates by connecting a Stellar wallet via
 [`@stellar/freighter-api`](https://github.com/stellar/freighter-api) — never
 by reading `window.freighter` directly, since that bypasses the extension's
-own permission and origin checks. No wallet-connection code exists yet;
-this document specifies the state machine it should implement, so the
-first PR that adds it has an agreed shape to build against instead of
-inventing one under review.
+own permission and origin checks. The shared app shell now has a client-side wallet-status badge and explicit
+connect/disconnect controls implementing these transitions. Disconnect
+clears the local display state without revoking Freighter's extension grant.
 
 ## States
 
@@ -64,7 +63,6 @@ disconnected ──connect()──▶ connecting ──approved──▶ connect
 
 ## Out of scope for this document
 
-The actual Freighter integration, retry/backoff policy, and UI for each
-state are implementation details for the PR that builds this — this
-document fixes the state shape and transitions so that PR has less to
-decide from scratch.
+Backend session issuance, persistence and extension grant revocation are not
+provided by the local wallet-status control. A disconnected pill must never
+be presented as proof that an extension permission has been revoked.

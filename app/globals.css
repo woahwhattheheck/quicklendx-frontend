@@ -131,3 +131,14 @@ footer {
     --border: #e2e8f0;
   }
 }
+
+
+/* Persistent app wallet-status control and connection badge (#32). */
+.app-shell { display: flex; gap: 1.25rem; padding: 1rem; max-width: 1100px; margin: 0 auto; }
+.app-content { flex: 1; min-width: 0; }
+.app-wallet-toolbar { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+.wallet-status { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .65rem; }
+.wallet-status-pill { display: inline-block; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); padding: .4rem .8rem; color: var(--muted); }
+.wallet-status-pill[data-status="connected"] { color: var(--text); border-color: var(--accent); }
+.wallet-status [role="alert"] { color: var(--text); }
+@media (max-width: 640px) { .app-shell { flex-direction: column; } }

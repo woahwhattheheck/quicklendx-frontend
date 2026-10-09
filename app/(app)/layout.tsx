@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/SidebarProvider";
+import { WalletStatus } from "@/components/WalletStatus";
 
 /** Shared shell for every authenticated route. Mounted once and kept alive
  * across navigation within this route group, so SidebarProvider's collapse
@@ -11,7 +12,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <div className="app-shell">
         <Sidebar />
-        <main>{children}</main>
+        <div className="app-content">
+          <header className="app-wallet-toolbar"><WalletStatus /></header>
+          <main>{children}</main>
+        </div>
       </div>
     </SidebarProvider>
   );
